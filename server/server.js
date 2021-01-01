@@ -13,11 +13,11 @@ const io = require('socket.io')(http, options);
 const Game = require('./game');
 
 const PORT = 80;
-app.use('/', express.static('../client'));
+app.use('/', express.static(path.join(__dirname, '..', 'client')));
 app.use(cors());
 
 http.listen(PORT, () => {
-    console.log('listening on *:' + process.env.PORT);
+    console.log('listening on *:' + PORT);
 });
 
 io.on('connection', socket => {
