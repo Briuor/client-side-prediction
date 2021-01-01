@@ -1,0 +1,25 @@
+{
+  "name": "client_prediction",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "express": "^4.17.1",
+    "socket.io": "^3.0.4",
+    "socket-io": "^1.0.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Briuor/client-side-prediction.git"
+  },
+  "author": "Briuor",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Briuor/client-side-prediction/issues"
+  },
+  "homepage": "https://github.com/Briuor/client-side-prediction#readme"
+}
