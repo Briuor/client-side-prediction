@@ -1,6 +1,6 @@
 class Network {
     constructor() {
-        this.socket = io('ws://localhost:3000');
+        this.socket = io('ws://13.84.213.182:80');
 
         this.connectPromise = new Promise(resolve => {
             this.socket.on('connect', () => {

@@ -1,25 +1,26 @@
+const path = require('path');
+// require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` });
 const express = require('express');
+const cors = require('cors');
 const app = express();
-const server = require('http').createServer(app);
-const io = require('socket.io')(server);
-
-const PORT = 3000;
-app.use('/', express.static('../client'));
-
+const http = require('http').createServer(app);
+const options = {
+    cors: true,
+    origins: ["http://127.0.0.1:80", "http://127.0.0.1:3000"],
+    transport: ['websocket']
+}
+const io = require('socket.io')(http, options);
 const Game = require('./game');
-let game = new Game();
+
+const PORT = 80;
+app.use('/', express.static('../client'));
+app.use(cors());
+
+http.listen(PORT, () => {
+    console.log('listening on *:' + process.env.PORT);
+});
 
 io.on('connection', socket => {
-    
-    (function () {
-        var oldEmit = socket.emit;
-        socket.emit = function () {
-            var args = Array.from(arguments);
-            setTimeout(() => {
-                oldEmit.apply(this, args);
-            }, 5000);
-        };
-    })();
 
     socket.on('join', (playerName) => {
         game.addPlayer(socket, playerName);
@@ -41,3 +42,5 @@ io.on('connection', socket => {
 server.listen(PORT, () => {
     console.log('Listening on Port ' + PORT);
 });
+
+let game = new Game();
