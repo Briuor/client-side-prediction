@@ -19,10 +19,9 @@ class Game {
         delete this.players[socket.id];
     }
 
-    handleInput(socket, input) {
+    handleInput(socket, move) {
         if (this.players[socket.id]) {
-            this.players[socket.id].inputs.push(input);
-            console.log('Received:', this.players[socket.id].inputs.length)
+            this.players[socket.id].moves.push(move);
         }
     }
 
@@ -33,22 +32,23 @@ class Game {
         this.lastUpdateTime = now;
 
         // move player
+        let ack;
         Object.keys(this.players).forEach(playerId => {
-            console.log(this.players[playerId].inputs.length)
-            while (this.players[playerId].inputs.length > 0) {
-                var input = this.players[playerId].inputs.shift()
-                this.players[playerId].setDirection(input.direction);
-                this.players[playerId].move(dt);
-                this.players[playerId].lastAck = input.ack;
-                // console.log('(' + this.players[playerId].x+','+ this.players[playerId].y+')');
+            let player = this.players[playerId];
+            let pendingMoves = this.players[playerId].moves;
+            while (pendingMoves.length > 0) {
+                var move = pendingMoves.shift();
+                player.setDirection(move.direction);
+                player.move(dt);
             }
+            
         });
 
         // send update event to each client
         Object.keys(this.sockets).forEach(socketId => {
             let me = this.players[socketId];
             let otherPlayers = Object.values(this.players).filter(p => p !== me);
-            this.sockets[socketId].emit('update', { t: Date.now(), me, otherPlayers });
+            this.sockets[socketId].emit('update', { ts: Date.now(), me, otherPlayers });
         });
     }
 }

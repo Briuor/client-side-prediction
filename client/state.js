@@ -5,6 +5,7 @@ class State {
         this.gameStart = 0;
         this.updates = [];
         this.RENDER_DELAY = 100;
+        this.lastUpdate = null;
     }
 
     currentServerTime() {
@@ -31,10 +32,7 @@ class State {
         // const base = getBaseUpdate();
         // const serverTime = currentServerTime();
 
-        if (this.updates.length > 0) {
-            return this.updates.shift();
-        }
-        return null;
+        return this.updates.shift();
     }
 
     handleUpdate(newUpdate) {

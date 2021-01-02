@@ -17,7 +17,7 @@ class Game {
         document.addEventListener('keydown', (e) => this.handleKeyBoardInput(e, true));
         document.addEventListener('keyup', (e) => this.handleKeyBoardInput(e, false));
 
-        this.pendingInputs = [];
+        this.savedMoves = [];
     }
 
     isDirection(code) {
@@ -50,37 +50,44 @@ class Game {
         let dt = now - this.lastUpdateTime;
         this.lastUpdateTime = now;
 
-
         if (state && me) {
 
-            // reconciliation
-            this.player.x = me.x;
-            this.player.y = me.y;
+            var serverTS = state.ts;
+            var x = me.x;
+            var y = me.y;
 
-            let j = 0;
-            while (j < this.pendingInputs.length) {
-                var input = this.pendingInputs[j];
-                if (input.ack <= me.lastAck) {
-                    // Already processed. Its effect is already taken into account into the world update
-                    // we just got, so we can drop it.
-                    this.pendingInputs.splice(j, 1);
-                } else {
-                    // Not processed by the server yet. Re-apply it.
-                    this.player.setDirection(input.direction);
-                    this.player.move(dt);
-                    j++;
-                }
-            }
+            // Erase all saved moves timestamped before the received server
+            // telemetry
+            this.savedMoves = this.savedMoves.filter(savedMove => {
+                savedMove.ts > serverTS
+            })
+
+            // Calculate a reconciled position using the data from the
+            // server telemetry as a starting point, and then re-applying
+            // the filtered saved moves.
+            this.savedMoves.forEach(savedMove => {
+                if (savedMove.direction.right)
+                    x += this.player.speed * dt;
+                if (savedMove.direction.left)
+                    x -= this.player.speed * dt;
+                if (savedMove.direction.up)
+                    y -= this.player.speed * dt;
+                if (savedMove.direction.down)
+                    y += this.player.speed * dt;
+            })
+
+            this.player.x = x;
+            this.player.y = y;
 
             // client prediction
-            let direction = this.player.move(dt);
-            let newInput = { direction, ack: this.player.ack };
-            this.network.socket.emit('input', newInput);
-            this.pendingInputs.push(newInput);
-            this.player.ack++;
-            console.log('Player: ', this.player);
-            console.log('ME', me);
+            let newMove = { direction: this.player.direction, ts: now };
+            this.network.socket.emit('input', newMove);
+            this.player.move(dt);
 
+            this.savedMoves.push(newMove);
+            while (this.savedMoves.length > 30) {
+                this.savedMoves.shift();
+            }
             // draw
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
             this.drawPlayer(me, 'red');

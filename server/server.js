@@ -12,7 +12,7 @@ const options = {
 const io = require('socket.io')(http, options);
 const Game = require('./game');
 
-const PORT = 80;
+const PORT = 3000;
 app.use('/', express.static(path.join(__dirname, '..', 'client')));
 app.use(cors());
 

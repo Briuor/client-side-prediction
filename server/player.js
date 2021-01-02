@@ -14,7 +14,8 @@ class Player {
         this.impulseVel = 20;
         this.hittedById = null;
         this.force = 10;
-        this.inputs = [];
+        this.moves = [];
+        this.lastAck = 0;
     }
 
     move(dt) {
