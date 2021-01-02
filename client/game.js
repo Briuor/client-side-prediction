@@ -49,7 +49,7 @@ class Game {
         let now = Date.now();
         let dt = now - this.lastUpdateTime;
         this.lastUpdateTime = now;
-
+        console.log(state);
         if (state && me) {
 
             var serverTS = state.ts;
@@ -75,24 +75,28 @@ class Game {
                 if (savedMove.direction.down)
                     y += this.player.speed * dt;
             })
-
             this.player.x = x;
             this.player.y = y;
-
-            // client prediction
-            let newMove = { direction: this.player.direction, ts: now };
-            this.network.socket.emit('input', newMove);
-            this.player.move(dt);
-
-            this.savedMoves.push(newMove);
-            while (this.savedMoves.length > 30) {
-                this.savedMoves.shift();
-            }
-            // draw
-            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-            this.drawPlayer(me, 'red');
-            this.drawPlayer(this.player, 'blue');  
+            console.log(x, y);
         }
+        
+
+        // client prediction
+        let direction = this.player.direction;
+        let newMove = { direction , ts: now };
+        this.network.socket.emit('input', newMove);
+        this.player.move(dt);
+
+        this.savedMoves.push(newMove);
+        while (this.savedMoves.length > 30) {
+            this.savedMoves.shift();
+        }
+        // draw
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        if (me) {
+            this.drawPlayer(me, 'red');
+        }
+        this.drawPlayer(this.player, 'blue');  
       
     }
 

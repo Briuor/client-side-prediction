@@ -5,7 +5,6 @@ class State {
         this.gameStart = 0;
         this.updates = [];
         this.RENDER_DELAY = 100;
-        this.lastUpdate = null;
     }
 
     currentServerTime() {
@@ -16,7 +15,7 @@ class State {
     getBaseUpdate() {
         const serverTime = this.currentServerTime();
         for (let i = this.updates.length - 1; i >= 0; i--) {
-            if (this.updates[i].t <= serverTime) {
+            if (this.updates[i].ts <= serverTime) {
                 return i;
             }
         }
@@ -25,27 +24,27 @@ class State {
 
     // handle Update
     getCurrentState() {
-        // if (!this.firstServerTimestamp) {
-        //     return {};
-        // }
+        if (!this.firstServerTimestamp) {
+            return {};
+        }
 
         // const base = getBaseUpdate();
         // const serverTime = currentServerTime();
-
-        return this.updates.shift();
+        return this.updates[this.updates.length - 1];
     }
 
     handleUpdate(newUpdate) {
-        this.updates.push(newUpdate);
-        // if (!this.firstServerTimestamp) {
-        //     this.firstServerTimestamp = newUpdate.t;
-        //     this.gameStart = Date.now();
-        // }
+        if (!this.firstServerTimestamp) {
+            this.firstServerTimestamp = newUpdate.ts;
+            this.gameStart = Date.now();
+        }
 
-        // this.updates.push(newUpdate);
-        // const base = this.getBaseUpdate();
-        // if (base > 0) {
-        //     this.updates.splice(0, base);
-        // }
+        this.updates.push(newUpdate);
+        console.log(this.updates)
+
+        const base = this.getBaseUpdate();
+        if (base > 0) {
+            this.updates.splice(0, base);
+        }
     }
 }
