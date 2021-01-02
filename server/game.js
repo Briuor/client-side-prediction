@@ -19,9 +19,10 @@ class Game {
         delete this.players[socket.id];
     }
 
-    handleInput(socket, move) {
+    handleInput(socket, input) {
+        let { keyCode, value } = input;
         if (this.players[socket.id]) {
-            this.players[socket.id].moves.push(move);
+            this.players[socket.id].updateDirection(keyCode, value);
         }
     }
 
@@ -32,18 +33,18 @@ class Game {
         this.lastUpdateTime = now;
 
         // move player
-        let ack;
         Object.keys(this.players).forEach(playerId => {
-            let player = this.players[playerId];
-            let pendingMoves = this.players[playerId].moves;
-            while (this.players[playerId].moves.length > 0) {
-                var move = this.players[playerId].moves.shift();
-                if (move) {
-                    console.log(move.direction)
-                    this.players[playerId].setDirection(move.direction);
-                    this.players[playerId].move(dt);
-                }
-            }
+            this.players[playerId].move(dt);
+            // let player = this.players[playerId];
+            // let pendingMoves = this.players[playerId].moves;
+            // while (this.players[playerId].moves.length > 0) {
+            //     var move = this.players[playerId].moves.shift();
+            //     if (move) {
+            //         console.log(move.direction)
+            //         this.players[playerId].setDirection(move.direction);
+            //         this.players[].move(dt);
+            //     }
+            // }
             
         });
 

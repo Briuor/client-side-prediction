@@ -26,7 +26,7 @@ class Game {
 
     handleKeyBoardInput(e, value) {
         if (this.isDirection(e.which)) {
-            this.player.updateDirection(e.which, value);
+            this.network.socket.emit('input', { keyCode: e.which, value });
         }
     }
 
@@ -43,61 +43,11 @@ class Game {
 
     // Main Loop
     run() {
-        let state = this.state.getCurrentState();
-        let me = state ? state.me : null;
-
-        let now = Date.now();
-        let dt = now - this.lastUpdateTime;
-        this.lastUpdateTime = now;
-        console.log(state);
-        if (state && me) {
-
-            var serverTS = state.ts;
-            var x = me.x;
-            var y = me.y;
-
-            // Erase all saved moves timestamped before the received server
-            // telemetry
-            this.savedMoves = this.savedMoves.filter(savedMove => {
-                savedMove.ts > serverTS
-            })
-
-            // Calculate a reconciled position using the data from the
-            // server telemetry as a starting point, and then re-applying
-            // the filtered saved moves.
-            this.savedMoves.forEach(savedMove => {
-                if (savedMove.direction.right)
-                    x += this.player.speed * dt;
-                if (savedMove.direction.left)
-                    x -= this.player.speed * dt;
-                if (savedMove.direction.up)
-                    y -= this.player.speed * dt;
-                if (savedMove.direction.down)
-                    y += this.player.speed * dt;
-            })
-            this.player.x = x;
-            this.player.y = y;
-            console.log(x, y);
-        }
+        let {me} = this.state.getCurrentState();
         
-
-        // client prediction
-        let direction = this.player.direction;
-        let newMove = { direction , ts: now };
-        this.network.socket.emit('input', newMove);
-        this.player.move(dt);
-
-        this.savedMoves.push(newMove);
-        while (this.savedMoves.length > 30) {
-            this.savedMoves.shift();
-        }
         // draw
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        if (me) {
-            this.drawPlayer(me, 'red');
-        }
-        this.drawPlayer(this.player, 'blue');  
-      
+        this.drawPlayer(me, 'red');
     }
 
     start() {
