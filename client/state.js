@@ -8,7 +8,7 @@ class State {
     }
 
     currentServerTime() {
-        return this.firstServerTimestamp + (Date.now() - this.gameStart) - this.RENDER_DELAY;
+        return this.firstServerTimestamp + (Date.now() - this.gameStart);
     }
 
 
